@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% set title = "Главная" %}
+{% block content %}
+
+<section class="hero">
+  <div class="container grid">
+    <div class="hero__left">
+      <div class="pill pill--a"><i></i> Подбор курса за минуту</div>
+      <div class="h1">Учись языкам по плану, а не “как получится”</div>
+      <div class="muted">
+        {{ info.name }} помогает выбрать язык, уровень и формат. ИИ-ассистент отвечает на вопросы и предлагает варианты обучения.
+      </div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+        <a class="btn btn--hot" href="/chatbot">Спросить ИИ-ассистента</a>
+        <a class="btn" href="/courses">Открыть каталог курсов</a>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi">
+          <b>{{ info.languages|length }}</b>
+          <span class="muted small">направлений</span>
+        </div>
+        <div class="kpi">
+          <b>{{ info.formats|join(" / ") }}</b>
+          <span class="muted small">форматы</span>
+        </div>
+        <div class="kpi">
+          <b>8–10 недель</b>
+          <span class="muted small">типовой курс</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__right">
+      <div class="hero__panel">
+        <div class="pill pill--d"><i></i> Быстрый старт</div>
+        <div class="h2">Готовые вопросы</div>
+        <div class="muted small">Нажми — откроется чат с уже набранным вопросом:</div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+          <a class="btn" href="/chatbot?q=Подбери%20курс%20английского%20для%20уровня%20A2">Английский A2</a>
+          <a class="btn" href="/chatbot?q=Какое%20расписание%20занятий%3F">Расписание</a>
+          <a class="btn" href="/chatbot?q=Есть%20ли%20онлайн%20формат%3F">Онлайн?</a>
+          <a class="btn" href="/chatbot?q=Сколько%20стоит%20китайский%3F">Цена китайского</a>
+        </div>
+
+        <hr/>
+
+        <div class="pill pill--c"><i></i> Как это работает</div>
+        <div class="muted small" style="margin-top:10px; line-height:1.5;">
+          • Пишешь цель и уровень<br/>
+          • ИИ предлагает 1–3 курса<br/>
+          • Уточняет формат и расписание<br/>
+          • Можно оставить заявку (демо)
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="card">
+      <div class="card__body">
+        <div class="pill pill--b"><i></i> Преимущества</div>
+        <div class="grid" style="margin-top:12px;">
+          <div class="tile" style="grid-column: span 4;">
+            <div class="tile__title">Понятные шаги</div>
+            <div class="muted small">диагностика → план → практика</div>
+          </div>
+          <div class="tile" style="grid-column: span 4;">
+            <div class="tile__title">Удобный формат</div>
+            <div class="muted small">онлайн или офлайн</div>
+          </div>
+          <div class="tile" style="grid-column: span 4;">
+            <div class="tile__title">ИИ-помощник</div>
+            <div class="muted small">подбор курса и ответы</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

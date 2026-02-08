@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% set title = "Курсы" %}
+{% block content %}
+
+<section class="section">
+  <div class="container">
+    <div class="pill pill--d"><i></i> Каталог</div>
+    <div class="h2" style="margin-top:10px;">Курсы и уровни</div>
+    <div class="muted">Выберите язык. Для точной рекомендации откройте ИИ-чат.</div>
+
+    <div class="grid" style="margin-top:14px;">
+      {% for c in info.languages %}
+      <div class="tile">
+        <div class="tile__head">
+          <div class="tile__title">{{ c.name }}</div>
+          <span class="badge">{{ c.duration_weeks }} недель</span>
+        </div>
+        <div class="muted small" style="margin-top:8px;">Уровни: {{ c.levels|join(", ") }}</div>
+        <div class="muted small" style="margin-top:6px;">Цена: {{ c.price_kzt }} ₸ за курс</div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+          <a class="btn btn--hot" href="/chatbot?q=Подбери%20курс%20{{ c.name }}%20по%20моей%20цели%20и%20уровню">Подобрать с ИИ</a>
+          <a class="btn" href="/chatbot?q=Сколько%20стоит%20{{ c.name }}%3F">Спросить цену</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="card__body">
+        <div class="pill pill--b"><i></i> Расписание</div>
+        <div class="muted" style="margin-top:10px; line-height:1.55;">
+          {% for s in info.schedule %}
+            • {{ s }}<br/>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% set title = "ИИ-чат" %}
+{% block content %}
+
+<section class="section">
+  <div class="container">
+    <div class="pill pill--a"><i></i> ИИ-ассистент</div>
+    <div class="h2" style="margin-top:10px;">Чат-консультант</div>
+    <div class="muted">Спроси про уровни, цены, расписание и какой курс выбрать.</div>
+
+    <div class="grid" style="margin-top:14px;">
+      <div class="chatWrap">
+
+        <aside class="chatSide">
+          <div style="font-weight:950; font-size:16px;">Подсказки</div>
+          <div class="muted small" style="margin-top:10px; line-height:1.6;">
+            Напиши в одном сообщении:
+            <br/>• язык
+            <br/>• уровень (если знаешь)
+            <br/>• цель (работа/переезд/учёба)
+            <br/>• формат (онлайн/офлайн)
+          </div>
+
+          <hr/>
+
+          <div class="muted small">Быстрые команды:</div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+            <button class="btn" type="button" onclick="quick('Подбери курс английского для уровня A2')">A2</button>
+            <button class="btn" type="button" onclick="quick('Какое расписание занятий?')">Расписание</button>
+            <button class="btn" type="button" onclick="quick('Можно ли учиться онлайн?')">Онлайн</button>
+            <button class="btn" type="button" onclick="quick('Сколько стоит немецкий?')">Цена</button>
+          </div>
+
+          <hr/>
+
+          <div class="muted small">
+            Режим сверху: <b>Gemini</b> — ИИ подключён, <b>fallback</b> — резервные ответы.
+          </div>
+        </aside>
+
+        <div class="chatBox">
+          <div class="chatHead">
+            <div style="font-weight:950;">{{ info.name }} • ассистент</div>
+            <div class="muted small" id="modeBadge">…</div>
+          </div>
+
+          <div class="chatBody" id="chatBody"></div>
+
+          <form class="chatForm" id="chatForm">
+            <input class="input" id="chatInput" placeholder="Напишите сообщение…" autocomplete="off" />
+            <button class="btn btn--hot" type="submit">Отправить</button>
+          </form>
+
+          <div class="chatHint">
+            Примеры: «Подбери курс английского для уровня A2 и цели работа», «Сколько стоит китайский?», «Есть ли офлайн?»
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  const chatBody = document.getElementById("chatBody");
+  const chatForm = document.getElementById("chatForm");
+  const chatInput = document.getElementById("chatInput");
+  const modeBadge = document.getElementById("modeBadge");
+
+  const KEY = "lingua_chat_v2"; // новый ключ, чтобы история не совпадала со старым проектом
+
+  function addMsg(text, who){
+    const div = document.createElement("div");
+    div.className = "msg " + (who === "me" ? "msg--me" : "");
+    div.textContent = text;
+    chatBody.appendChild(div);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  function loadHistory(){
+    try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+    catch { return []; }
+  }
+  function saveHistory(h){
+    localStorage.setItem(KEY, JSON.stringify(h.slice(-50)));
+  }
+
+  function restore(){
+    const h = loadHistory();
+    if(!h.length){
+      addMsg("Привет! Я помогу выбрать курс. Напиши: язык, уровень (если знаешь), цель и формат (онлайн/офлайн).", "bot");
+      return;
+    }
+    for(const m of h) addMsg(m.text, m.who);
+  }
+
+  async function sendToApi(message){
+    const saved = loadHistory().slice(-10).map(m => ({
+      role: m.who === "bot" ? "model" : "user",
+      text: m.text
+    }));
+
+    const r = await fetch("/api/chat", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ message, history: saved })
+    });
+
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error || "API error");
+    return data; // {text, mode}
+  }
+
+  function quick(text){
+    chatInput.value = text;
+    chatInput.focus();
+  }
+
+  chatForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = chatInput.value.trim();
+    if(!text) return;
+    chatInput.value = "";
+
+    const h = loadHistory();
+    h.push({who:"me", text, ts:Date.now()});
+    saveHistory(h);
+    addMsg(text, "me");
+
+    try{
+      const resp = await sendToApi(text);
+      modeBadge.textContent = resp.mode === "gemini" ? "режим: Gemini" : "режим: fallback";
+      const reply = resp.text || "Пустой ответ";
+      const h2 = loadHistory();
+      h2.push({who:"bot", text: reply, ts:Date.now()});
+      saveHistory(h2);
+      addMsg(reply, "bot");
+    }catch{
+      modeBadge.textContent = "режим: fallback";
+      const reply = "Ошибка запроса. Проверь GEMINI_API_KEY или попробуй позже.";
+      const h2 = loadHistory();
+      h2.push({who:"bot", text: reply, ts:Date.now()});
+      saveHistory(h2);
+      addMsg(reply, "bot");
+    }
+  });
+
+  // автоподстановка вопроса из ?q=
+  const params = new URLSearchParams(location.search);
+  const q = params.get("q");
+  if(q){ chatInput.value = q; }
+
+  restore();
+</script>
+
+{% endblock %}

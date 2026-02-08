@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% set title = "Контакты" %}
+{% block content %}
+
+<section class="section">
+  <div class="container">
+    <div class="pill pill--c"><i></i> Связь</div>
+    <div class="h2" style="margin-top:10px;">Контакты и заявка</div>
+    <div class="muted">Демо-страница. Подставь реальные данные друга.</div>
+
+    <div class="grid" style="margin-top:14px;">
+      <div class="block">
+        <div style="font-weight:900; font-size:18px;">Контакты</div>
+        <div class="muted" style="margin-top:10px; line-height:1.6;">
+          <b>Телефон:</b> {{ info.contacts.phone }}<br/>
+          <b>Email:</b> {{ info.contacts.email }}<br/>
+          <b>Адрес:</b> {{ info.contacts.address }}<br/>
+        </div>
+
+        <hr/>
+
+        <div class="muted small">
+          Быстрый вариант: спроси в чате “какой курс мне подойдёт, если я новичок?”
+        </div>
+        <div style="margin-top:12px;">
+          <a class="btn btn--hot" href="/chatbot">Перейти в ИИ-чат</a>
+        </div>
+      </div>
+
+      <div class="block">
+        <div style="font-weight:900; font-size:18px;">Оставить заявку</div>
+        <div class="muted small" style="margin-top:6px;">
+          (демо — просто показывает сообщение)
+        </div>
+
+        <form onsubmit="event.preventDefault(); alert('Демо: заявка отправлена');" style="margin-top:12px;">
+          <input class="input" placeholder="Имя" required />
+          <div style="height:10px;"></div>
+          <input class="input" placeholder="Телефон или email" required />
+          <div style="height:10px;"></div>
+          <textarea placeholder="Цель обучения (например: разговорный английский для работы)"></textarea>
+          <div style="height:12px;"></div>
+          <button class="btn btn--hot" type="submit">Отправить</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

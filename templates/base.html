@@ -1,1 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{{ title }} — LinguaWave</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a class="brand" href="/">
+        <div class="logo">🌍</div>
+        <div>
+          <div class="brand__name">LinguaWave</div>
+          <div class="muted small">Школа иностранных языков + ИИ‑помощник</div>
+        </div>
+      </a>
+      <nav class="nav">
+        <a href="/">Главная</a>
+        <a href="/courses">Курсы</a>
+        <a href="/contact">Контакты</a>
+        <a href="/chatbot">ИИ‑ассистент</a>
+      </nav>
+      <a class="btn btn--primary" href="/chatbot">Открыть чат</a>
+    </div>
+  </header>
 
+  {% block content %}{% endblock %}
+
+  <footer class="footer">
+    <div class="container muted small">
+      © {{ info.name }} — учебный проект (РГР). ИИ через Gemini (free tier) + fallback без ключа.
+    </div>
+  </footer>
+</body>
+</html>
