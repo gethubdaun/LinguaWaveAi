@@ -153,3 +153,16 @@ def health():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+
+
+@app.route("/debug_models")
+def debug_models():
+
+    key = os.getenv("OPENROUTER_API_KEY")
+
+    r = requests.get(
+        "https://openrouter.ai/api/v1/models",
+        headers={"Authorization": f"Bearer {key}"}
+    )
+
+    return r.text
