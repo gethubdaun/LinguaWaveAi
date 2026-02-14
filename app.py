@@ -2,6 +2,11 @@ from flask import Flask, render_template, request, jsonify
 import os
 import requests
 
+print("=== ENV CHECK ===")
+print("OPENROUTER_API_KEY:", os.getenv("OPENROUTER_API_KEY"))
+print("=================")
+
+
 app = Flask(__name__)
 
 # ===== CONFIG =====
