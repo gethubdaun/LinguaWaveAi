@@ -5,7 +5,7 @@ import requests
 app = Flask(__name__)
 
 # ===== CONFIG =====
-OPENROUTER_API_KEY = os.getenv("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")
+OPENROUTER_API_KEY = os.getenv("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")
 OPENROUTER_MODEL = os.getenv(
     "OPENROUTER_MODEL",
     "deepseek/deepseek-chat:free"
