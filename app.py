@@ -44,64 +44,41 @@ def _local_fallback_answer(message: str) -> str:
 def call_ai(message: str, history: list) -> str:
 
     OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-    OPENROUTER_MODEL = os.getenv(
-        "OPENROUTER_MODEL",
-        "mistralai/mistral-7b-instruct:free"
-    )
 
     if not OPENROUTER_API_KEY:
         raise RuntimeError("NO OPENROUTER API KEY")
 
-    messages = [{
-        "role": "system",
-        "content": SYSTEM_INSTRUCTION
-    }]
+    messages = [
+        {"role": "system", "content": SYSTEM_INSTRUCTION}
+    ]
 
     for turn in history[-10:]:
         role = "assistant" if turn.get("role") == "model" else "user"
         text = turn.get("text", "")
         if text:
-            messages.append({
-                "role": role,
-                "content": text
-            })
+            messages.append({"role": role, "content": text})
 
-    messages.append({
-        "role": "user",
-        "content": message
-    })
+    messages.append({"role": "user", "content": message})
 
     resp = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
         headers={
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://linguawaveai.onrender.com",
-            "X-Title": "LinguaWaveAI"
+            "Content-Type": "application/json"
         },
         json={
-            "model": OPENROUTER_MODEL,
-            "messages": messages,
-            "temperature": 0.4,
-            "max_tokens": 400
+            "model": "deepseek/deepseek-chat",
+            "messages": messages
         },
         timeout=30
     )
 
+    print("RAW:", resp.text)
+
     if resp.status_code != 200:
-        print("OPENROUTER RAW:", resp.text)
         raise RuntimeError(resp.text)
 
-    data = resp.json()
-
-    return (
-        data.get("choices", [{}])[0]
-        .get("message", {})
-        .get("content", "")
-        .strip()
-        or "Нет ответа."
-    )
-
+    return resp.json()["choices"][0]["message"]["content"]
 
 
 @app.route("/")
