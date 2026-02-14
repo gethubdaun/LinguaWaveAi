@@ -88,9 +88,10 @@ def call_ai(message: str, history: list) -> str:
         timeout=30
     )
 
-  if resp.status_code != 200:
-    print("OPENROUTER RAW:", resp.text)
-    raise RuntimeError(resp.text)
+    if resp.status_code != 200:
+        print("OPENROUTER RAW:", resp.text)
+        raise RuntimeError(resp.text)
+
 
 
     data = resp.json()
