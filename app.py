@@ -5,8 +5,11 @@ import requests
 app = Flask(__name__)
 
 # ===== CONFIG =====
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_MODEL = os.getenv(
+    "OPENROUTER_MODEL",
+    "deepseek/deepseek-chat:free"
+)
 
 SYSTEM_INSTRUCTION = (
     "Ты — ИИ-ассистент школы иностранных языков LinguaSmart. "
@@ -42,40 +45,44 @@ def _local_fallback_answer(message:str)->str:
 
     return "Напиши язык и уровень — помогу выбрать курс."
 
-# ===== GEMINI CALL =====
-def call_gemini(message:str,history:list)->str:
+# ===== OPENROUTER CALL =====
+def call_ai(message:str,history:list)->str:
 
-    if not GEMINI_API_KEY:
-        raise RuntimeError("NO API KEY")
+    if not OPENROUTER_API_KEY:
+        raise RuntimeError("NO OPENROUTER API KEY")
 
-    contents=[]
+    messages=[{
+        "role":"system",
+        "content":SYSTEM_INSTRUCTION
+    }]
 
     for turn in history[-10:]:
-        role="model" if turn.get("role")=="model" else "user"
+        role="assistant" if turn.get("role")=="model" else "user"
         text=turn.get("text","")
         if text:
-            contents.append({
+            messages.append({
                 "role":role,
-                "parts":[{"text":text}]
+                "content":text
             })
 
-    contents.append({
+    messages.append({
         "role":"user",
-        "parts":[{"text":message}]
+        "content":message
     })
 
-    url=f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
-
     resp=requests.post(
-        url,
-        json={
-            "contents":contents,
-            "generationConfig":{
-                "temperature":0.4,
-                "maxOutputTokens":400
-            }
+        "https://openrouter.ai/api/v1/chat/completions",
+        headers={
+            "Authorization":f"Bearer {OPENROUTER_API_KEY}",
+            "Content-Type":"application/json"
         },
-        timeout=20
+        json={
+            "model":OPENROUTER_MODEL,
+            "messages":messages,
+            "temperature":0.4,
+            "max_tokens":400
+        },
+        timeout=30
     )
 
     if resp.status_code!=200:
@@ -83,10 +90,13 @@ def call_gemini(message:str,history:list)->str:
 
     data=resp.json()
 
-    parts=data.get("candidates",[{}])[0].get("content",{}).get("parts",[])
-    text="".join([p.get("text","") for p in parts if isinstance(p,dict)])
-
-    return text or "Нет ответа."
+    return (
+        data.get("choices",[{}])[0]
+        .get("message",{})
+        .get("content","")
+        .strip()
+        or "Нет ответа."
+    )
 
 # ===== ROUTES =====
 @app.route("/")
@@ -116,8 +126,8 @@ def api_chat():
         return jsonify({"error":"message required"}),400
 
     try:
-        text=call_gemini(message,history)
-        return jsonify({"text":text,"mode":"gemini"})
+        text=call_ai(message,history)
+        return jsonify({"text":text,"mode":"ai"})
     except Exception as e:
         print("AI ERROR:",e)
         return jsonify({
