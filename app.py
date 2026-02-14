@@ -46,7 +46,7 @@ def call_ai(message: str, history: list) -> str:
     OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
     OPENROUTER_MODEL = os.getenv(
         "OPENROUTER_MODEL",
-        "deepseek/deepseek-chat:free"
+        "mistralai/mistral-7b-instruct:free"
     )
 
     if not OPENROUTER_API_KEY:
@@ -92,8 +92,6 @@ def call_ai(message: str, history: list) -> str:
         print("OPENROUTER RAW:", resp.text)
         raise RuntimeError(resp.text)
 
-
-
     data = resp.json()
 
     return (
@@ -103,6 +101,7 @@ def call_ai(message: str, history: list) -> str:
         .strip()
         or "Нет ответа."
     )
+
 
 
 @app.route("/")
