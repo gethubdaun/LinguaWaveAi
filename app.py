@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import os
 import requests
+OPENROUTER_MODEL = "deepseek/deepseek-chat"
 
 app = Flask(__name__)
 
